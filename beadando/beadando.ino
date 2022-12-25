@@ -1,18 +1,18 @@
 /*
  Showing numbers, chars and phrases
-   A
-  ---
+    A
+   ---
 F |   | B
- | G |
-  ---
+  | G |
+   ---
 E |   | C
- |   |
-  ---
-   D
+  |   |
+   ---
+    D
 */
 #define common_cathode 0
 #define common_anode 1
-bool mode = common_cathode;// my display is common anode
+bool mode = common_cathode;
 #define pinA 2
 #define pinB 3
 #define pinC 4
@@ -25,8 +25,23 @@ bool mode = common_cathode;// my display is common anode
 #define D2 9
 #define D3 10
 #define D4 11
+#define ONE_WIRE_BUS 18
 #include "array.h"
 #include "functions.h"
+#include <OneWire.h>
+#include <DallasTemperature.h>
+
+OneWire oneWire(ONE_WIRE_BUS);
+DallasTemperature sensors(&oneWire);
+int LED = 19;
+int potentiometerPIN = 2;
+int value = 0;
+char numberArray[20];
+String stringOne = "";
+String stringTwo = "";
+int currentTemp = 0;
+int targetTemp = 0;
+
 void setup() {                
  // initialize the digital pins as outputs.
  pinMode(pinA, OUTPUT);     
@@ -41,16 +56,49 @@ void setup() {
  pinMode(D2, OUTPUT);  
  pinMode(D3, OUTPUT);  
  pinMode(D4, OUTPUT); 
+ pinMode(LED, OUTPUT);
  Serial.begin(9600);
+ sensors.begin();
 }
 // the loop routine runs over and over again forever:
 void loop() {
-printDisplay("2021",1000);// use this function to print a string (has numbers, characters or phrases) when the length of string is 4 or less than 4, the second variable is the time for printing on display
-Reset();// use this function to reset the display
-printDisplay("8888",5000);
-delay(1000);
-printDisplay("all usable characters [[ 1 2 3 4 5 6 7 8 9 0 a b c d e f g h i j l n o p q r s t u y - _ . [ ] ? ]]",300);// when the length of string is more than 4, the second variable is custom speed for movement
-delay(1000);
-printDigit('y',D1);//print any char on any digit
-delay(1000);
+  value = analogRead(potentiometerPIN);    // It reads the value from the potentiometer
+  targetTemp = value/32; 
+  stringOne = String(targetTemp);  
+  if (targetTemp<10) //this part is for the 4 digit display to shift the noumbers
+  {
+    stringOne = "   "+stringOne;     
+  }
+  else
+  {
+    stringOne = "  "+stringOne;    
+  }  
+  Serial.println(targetTemp); 
+  //Reset();// use this function to reset the display
+  printDisplay(stringOne,500);
+  Reset();
+  
+  sensors.requestTemperatures();
+  //Serial.println(sensors.getTempCByIndex(0));
+  currentTemp =   int(sensors.getTempCByIndex(0));
+  stringTwo = String(currentTemp);
+  Serial.println(stringTwo);  
+  //delay(1000);
+  printDisplay(stringTwo,500);
+  if(targetTemp == 0)
+  {
+    digitalWrite(LED, LOW);
+  
+  }  
+  else if(targetTemp>currentTemp)
+  {
+    digitalWrite(LED, HIGH);
+    
+  }
+  else
+  {
+    digitalWrite(LED, LOW);
+    
+  }
+   delay(500);
 }

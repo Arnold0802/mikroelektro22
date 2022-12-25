@@ -23,6 +23,7 @@ for(int i = 0;i<= 7;i++)
    {if(mode == common_anode) digitalWrite(seg[i],!Char[character][i]);     
    else if(mode == common_cathode) digitalWrite(seg[i],Char[character][i]);
    }
+ 
  }
 }
 void printDisplay(String Phrase,int Delay)
