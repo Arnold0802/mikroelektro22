@@ -90,20 +90,24 @@ void loop() {
   Serial.println(stringTwo);  
   //delay(1000);
   printDisplay(stringTwo,500);
-  if(targetTemp == 0)
+  if(doorState)
   {
-    digitalWrite(LED, LOW);
-  
-  }  
-  else if(targetTemp>currentTemp)
-  {
-    digitalWrite(LED, HIGH);
-    
+    digitalWrite(LED, LOW);   
   }
   else
   {
-    digitalWrite(LED, LOW);
-    
-  }
+    if(targetTemp == 0)
+    {
+      digitalWrite(LED, LOW);
+    }  
+    else if(targetTemp>currentTemp)
+    {
+      digitalWrite(LED, HIGH);
+    }
+    else
+    {
+      digitalWrite(LED, LOW);
+    }
+  }  
    delay(500);
 }
