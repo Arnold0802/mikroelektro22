@@ -35,12 +35,14 @@ OneWire oneWire(ONE_WIRE_BUS);
 DallasTemperature sensors(&oneWire);
 int LED = 19;
 int potentiometerPIN = 2;
+int doorOpenPIN = 14;
 int value = 0;
 char numberArray[20];
 String stringOne = "";
 String stringTwo = "";
 int currentTemp = 0;
 int targetTemp = 0;
+int doorState = 0;
 
 void setup() {                
  // initialize the digital pins as outputs.
@@ -57,12 +59,15 @@ void setup() {
  pinMode(D3, OUTPUT);  
  pinMode(D4, OUTPUT); 
  pinMode(LED, OUTPUT);
+ pinMode(doorOpenPIN, INPUT_PULLUP); 
  Serial.begin(9600);
  sensors.begin();
 }
 // the loop routine runs over and over again forever:
 void loop() {
   value = analogRead(potentiometerPIN);    // It reads the value from the potentiometer
+  doorState = digitalRead(doorOpenPIN);
+  Serial.println(doorState);
   targetTemp = value/32; 
   stringOne = String(targetTemp);  
   if (targetTemp<10) //this part is for the 4 digit display to shift the noumbers
