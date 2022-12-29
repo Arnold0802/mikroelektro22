@@ -30,6 +30,14 @@ bool mode = common_cathode;
 #include "functions.h"
 #include <OneWire.h>
 #include <DallasTemperature.h>
+#include <SPI.h>
+#include <Ethernet.h>
+#include <UbidotsEthernet.h>
+
+char const * TOKEN = "BBFF-8mQkrx1ITKZTQDhsuyqNt2DS9ObFPY"; // Assign your Ubidots TOKEN
+char const * VARIABLE_LABEL_1 = "targettemp"; // Assign the unique variable label to send the data
+char const * VARIABLE_LABEL_2 = "currenttemp"; // Assign the unique variable label to send the data
+char const * VARIABLE_LABEL_3 = "heating"; // Assign the unique variable label to send the data
 
 OneWire oneWire(ONE_WIRE_BUS);
 DallasTemperature sensors(&oneWire);
@@ -43,25 +51,42 @@ String stringTwo = "";
 int currentTemp = 0;
 int targetTemp = 0;
 int doorState = 0;
+int heatOn = 0;
+byte mac[] = {0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED};
+IPAddress ip(192, 168, 1, 189);
+IPAddress dbserver(192, 168, 1, 70);
+EthernetClient ArduinoClient;
+
+Ubidots client(TOKEN);
 
 void setup() {                
- // initialize the digital pins as outputs.
- pinMode(pinA, OUTPUT);     
- pinMode(pinB, OUTPUT);     
- pinMode(pinC, OUTPUT);     
- pinMode(pinD, OUTPUT);     
- pinMode(pinE, OUTPUT);     
- pinMode(pinF, OUTPUT);     
- pinMode(pinG, OUTPUT); 
- pinMode(pinDP, OUTPUT);  
- pinMode(D1, OUTPUT);  
- pinMode(D2, OUTPUT);  
- pinMode(D3, OUTPUT);  
- pinMode(D4, OUTPUT); 
- pinMode(LED, OUTPUT);
- pinMode(doorOpenPIN, INPUT_PULLUP); 
- Serial.begin(9600);
- sensors.begin();
+// initialize the digital pins as outputs.
+  pinMode(pinA, OUTPUT);     
+  pinMode(pinB, OUTPUT);     
+  pinMode(pinC, OUTPUT);     
+  pinMode(pinD, OUTPUT);     
+  pinMode(pinE, OUTPUT);     
+  pinMode(pinF, OUTPUT);     
+  pinMode(pinG, OUTPUT); 
+  pinMode(pinDP, OUTPUT);  
+  pinMode(D1, OUTPUT);  
+  pinMode(D2, OUTPUT);  
+  pinMode(D3, OUTPUT);  
+  pinMode(D4, OUTPUT); 
+  pinMode(LED, OUTPUT);
+  pinMode(doorOpenPIN, INPUT_PULLUP); 
+  Serial.begin(9600);
+  sensors.begin();
+  //Ethernet.begin(mac, ip);
+  Serial.print(F("Starting ethernet..."));
+  if (!Ethernet.begin(mac)) {
+    Serial.println(F("failed"));
+  } else {
+    Serial.println(Ethernet.localIP());
+  }
+  /* Give the Ethernet shield a second to initialize */
+  delay(2000);
+  Serial.println(F("Ready"));
 }
 // the loop routine runs over and over again forever:
 void loop() {
@@ -92,22 +117,37 @@ void loop() {
   printDisplay(stringTwo,500);
   if(doorState)
   {
-    digitalWrite(LED, LOW);   
+    digitalWrite(LED, LOW);
+    heatOn = 0;   
   }
   else
   {
     if(targetTemp == 0)
     {
       digitalWrite(LED, LOW);
+      heatOn = 0;
     }  
     else if(targetTemp>currentTemp)
     {
       digitalWrite(LED, HIGH);
+      heatOn = 1;
     }
     else
     {
       digitalWrite(LED, LOW);
+      heatOn = 0;
     }
-  }  
-   delay(500);
+  }
+  Ethernet.maintain();
+
+  /* Sensors readings */
+  float value_1 = targetTemp;
+  float value_2 = currentTemp;
+  float value_3 = heatOn;
+  /* Sending values to Ubidots */
+  client.add(VARIABLE_LABEL_1, value_1);
+  client.add(VARIABLE_LABEL_2, value_2);
+  client.add(VARIABLE_LABEL_3, value_3);
+  client.sendAll();
+  delay(500);
 }
