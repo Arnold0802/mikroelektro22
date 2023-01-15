@@ -1,4 +1,7 @@
 # mikroelektro22
+
+https://github.com/Arnold0802/mikroelektro22
+
 A téma választás során próbáltunk a meglévő dolgainkból, alkatrészekből összeállítani a feladat teljesítéséhez szükséges 
 rendszert megvalósítani. Az alapot egy Arduino UNO adta, 
 ehhez társult hozzá az alábbi részegységek, amiket a projekt során felhasználtunk:
