@@ -53,7 +53,7 @@ int targetTemp = 0;
 int doorState = 0;
 int heatOn = 0;
 byte mac[] = {0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED};
-IPAddress ip(192, 168, 1, 189);
+IPAddress ip(192, 168, 137, 189);
 IPAddress dbserver(192, 168, 1, 70);
 
 EthernetClient ArduinoClient;
